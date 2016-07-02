@@ -106,8 +106,9 @@ The function returns a string used to run the py.test command.  Here's an exampl
   (format format-string working-directory test-runner command-flags test-names))
 
 (defun pytest-check-test-file (path)
-  (if (not (file-exists-p path))
-      (error (format "'%s' is not an extant file." path))))
+  (let ((actual-path (car (s-split "::" path))))
+    (if (not (file-exists-p actual-path))
+        (error (format "'%s' is not an extant file." actual-path)))))
 
 (defun pytest-run (&optional tests flags)
   "Run pytest.
