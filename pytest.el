@@ -51,17 +51,6 @@
 ;;
 ;; ; (setq pytest-project-root-test (lambda (dirname) (equal dirname "foo")))
 
-;; Probably also want some keybindings:
-;; (add-hook 'python-mode-hook
-;;           (lambda ()
-;;             (local-set-key "\C-ca" 'pytest-all)
-;;             (local-set-key "\C-cm" 'pytest-module)
-;;             (local-set-key "\C-c." 'pytest-one)
-;;             (local-set-key "\C-cd" 'pytest-directory)
-;;             (local-set-key "\C-cpa" 'pytest-pdb-all)
-;;             (local-set-key "\C-cpm" 'pytest-pdb-module)
-;;             (local-set-key "\C-cp." 'pytest-pdb-one)))
-
 ;;; Code:
 (require 's)
 (require 'cl)
@@ -89,6 +78,37 @@
 
 (defcustom pytest-cmd-format-string "cd '%s' && %s %s %s"
   "Format string used to run the py.test command.")
+
+(defcustom pytest-mode-keymap-prefix "C-c t"
+  "Keymap preffix."
+  :type 'string)
+
+(defcustom pytest-test-module-regex "^test_.+\\.py$"
+  "Regex for identifying test modules."
+  :type 'string)
+
+(defvar pytest-mode-map (make-sparse-keymap "pytest-mode") "pytest-mode keymap")
+
+(defun pytest-mode-setup-keymap ()
+  "Setup a default keymap."
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "a")) 'pytest-all)
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "m")) 'pytest-module)
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix ".")) 'pytest-one)
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "d")) 'pytest-directory)
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "pa")) 'pytest-pdb-all)
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "pm")) 'pytest-pdb-module)
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "p.")) 'pytest-pdb-one))
+
+(define-minor-mode pytest-mode
+  "Minor mode for running pytest from emacs." nil " pytest" pytest-mode-map
+  (pytest-mode-setup-keymap))
+
+(defun pytest-mode-enable-if-test-module ()
+  "Activate `pytest-mode' when visiting a python test file."
+  ;; emacs lisp check if value is string
+  (when (and (stringp buffer-file-name)
+             (string-match-p pytest-test-module-regex (file-name-nondirectory buffer-file-name)))
+    (pytest-mode 1)))
 
 (defun pytest-cmd-format (format-string working-directory test-runner command-flags test-names)
   "Create the string used for running the py.test command.
