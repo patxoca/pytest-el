@@ -204,6 +204,20 @@ Optional argument FLAGS py.test command line flags."
   (interactive)
   (pytest-module (concat "--pdb " pytest-cmd-flags)))
 
+;;;###autoload
+(defun pytest-class (&optional flags)
+  "Run pytest on a class."
+  (interactive)
+  (pytest-run (concat (buffer-file-name)
+                      (format "::%s" (cdr (pytest-outer-testable))))
+              flags))
+
+;;;###autoload
+(defun pytest-pdb-class ()
+  "Run pytest on a class, enter debugger on error."
+  (interactive)
+  (pytest-class (concat "--pdb " pytest-cmd-flags)))
+
 ;;; Run the test surrounding the current point
 ;;;###autoload
 (defun pytest-one (&optional flags)
