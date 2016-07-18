@@ -74,6 +74,7 @@ The minor mode defines a keymap for running tests:
   C-c t m:   pytest-module
   C-c t c:   pytest-class
   C-c t .:   pytest-one
+  C-c t r:   pytest-rerun-last
   C-c t d:   pytest-directory
   C-c t p a: pytest-pdb-all
   C-c t p m: pytest-pdb-module

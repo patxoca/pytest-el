@@ -89,12 +89,17 @@
 
 (defvar pytest-mode-map (make-sparse-keymap "pytest-mode") "pytest-mode keymap")
 
+(defvar pytest--last-command-args nil
+  "Arguments passed to `pytest-run' the last time it was called,
+`nil' if never called.")
+
 (defun pytest-mode-setup-keymap ()
   "Setup a default keymap."
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "a")) 'pytest-all)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "m")) 'pytest-module)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "c")) 'pytest-class)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix ".")) 'pytest-one)
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "r")) 'pytest-rerun-last)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "d")) 'pytest-directory)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "pa")) 'pytest-pdb-all)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "pm")) 'pytest-pdb-module)
@@ -137,6 +142,7 @@ The function returns a string used to run the py.test command.  Here's an exampl
 Optional argument TESTS Tests to run.
 Optional argument FLAGS py.test command line flags."
   (interactive "fTest directory or file: \nspy.test flags: ")
+  (setq pytest--last-command-args (cons tests flags))
   (let* ((pytest (pytest-find-test-runner))
          (where (if tests
                     (let ((testpath (if (listp tests) (car tests) tests)))
@@ -234,6 +240,13 @@ Optional argument FLAGS py.test command line flags."
   (interactive)
   (pytest-one (concat "--pdb " pytest-cmd-flags)))
 
+;;;###autoload
+(defun pytest-rerun-last ()
+  "Repeats the last test run."
+  (interactive)
+  (if (null pytest--last-command-args)
+      (error "No previous test command run.")
+    (pytest-run (car pytest--last-command-args) (cdr pytest--last-command-args))))
 
 ;;; Utility functions
 (defun pytest-find-test-runner ()
