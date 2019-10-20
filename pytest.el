@@ -160,8 +160,8 @@ Optional argument FLAGS py.test command line flags."
                                     (lambda (mode) (concat "*pytest*"))))
              (pytest-cmd-format pytest-cmd-format-string where pytest cmd-flags tnames))
     (if use-comint
-	(with-current-buffer (get-buffer "*pytest*")
-	  (inferior-python-mode)))))
+        (with-current-buffer (get-buffer "*pytest*")
+          (inferior-python-mode)))))
 
 ;;; Run entire test suite
 ;;;###autoload
@@ -251,10 +251,10 @@ Optional argument FLAGS py.test command line flags."
 ;;; Utility functions
 (defun pytest-find-test-runner ()
   (let ((result
-     (reduce '(lambda (x y) (or x y))
-         (mapcar 'pytest-find-test-runner-names pytest-project-names))))
+         (reduce '(lambda (x y) (or x y))
+                 (mapcar 'pytest-find-test-runner-names pytest-project-names))))
     (if result
-    result
+        result
       pytest-global-name)))
 
 (defun pytest-find-test-runner-names (runner)
@@ -265,10 +265,10 @@ Optional argument FLAGS py.test command line flags."
 (defun pytest-find-test-runner-in-dir-named (dn runner)
   (let ((fn (expand-file-name runner dn)))
     (cond ((file-regular-p fn) fn)
-      ((equal dn "/") nil)
-      (t (pytest-find-test-runner-in-dir-named
-          (file-name-directory (directory-file-name dn))
-          runner)))))
+          ((equal dn "/") nil)
+          (t (pytest-find-test-runner-in-dir-named
+              (file-name-directory (directory-file-name dn))
+              runner)))))
 
 (defun pytest-py-testable ()
   "Create a path to a test.
@@ -283,8 +283,8 @@ case.  This requires pytest >= 1.2."
     (concat
      (buffer-file-name)
      (cond ((equal outer-def "def") (format "::%s" outer-obj))
-       ((equal inner-obj outer-obj) (format "::%s" outer-obj))
-       (t (format "::%s::%s" outer-obj inner-obj))))))
+           ((equal inner-obj outer-obj) (format "::%s" outer-obj))
+           (t (format "::%s::%s" outer-obj inner-obj))))))
 
 (defun pytest-inner-testable ()
   "Find the function name for `pytest-one'."
@@ -299,7 +299,7 @@ case.  This requires pytest >= 1.2."
     (re-search-backward
      "^\\(class\\|def\\)[ \t]+\\([a-zA-Z0-9_]+\\)" nil t)
     (let ((result
-            (buffer-substring-no-properties (match-beginning 2) (match-end 2))))
+           (buffer-substring-no-properties (match-beginning 2) (match-end 2))))
       (cons
        (buffer-substring-no-properties (match-beginning 1) (match-end 1))
        result))))
@@ -311,8 +311,8 @@ case.  This requires pytest >= 1.2."
            (file-name-directory buffer-file-name))))
     (cond ((funcall pytest-project-root-test dn) (expand-file-name dn))
           ((equal (expand-file-name dn) "/") nil)
-        (t (pytest-find-project-root
-             (file-name-directory (directory-file-name dn)))))))
+          (t (pytest-find-project-root
+              (file-name-directory (directory-file-name dn)))))))
 
 (defun pytest-project-root (dirname)
   (reduce '(lambda (x y) (or x y))
