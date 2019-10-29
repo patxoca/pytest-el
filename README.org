@@ -96,3 +96,24 @@ hook ~python-mode-hook~.
        (setq pytest-mode-keymap-prefix "C-c m t")
        (add-hook 'python-mode-hook 'pytest-mode-enable-if-test-module)))
 #+END_SRC
+
+** Running tests for the current module
+
+=pytest.el= allows you to run tests /for/ the current module, in
+opposition to running test /from/ the current module.
+
+In order to find the module that contains the tests for the current
+module, =pytest-run-tests-for-current-module= calls the functions in
+the variable =pytest-test-module-name-candidate-functions= until one
+returns the path for an existing file. The tests from that file are
+executed. If no function returns a valid candidate an user error is
+signaled.
+
+By default =pytest.el= will run the tests in the current module if
+it's already a test module, and then look for the module
+=<src>/tests/test_<module>.py= and the module
+=<pkg>/tests/test_<module>.py=.
+
+If your project uses other conventions you can easily define a new
+candidate generator function and customize =pytest=. For extra details
+=C-h f pytest-run-tests-for-current-module=.

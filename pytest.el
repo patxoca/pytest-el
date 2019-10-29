@@ -55,6 +55,8 @@
 (require 's)
 (require 'cl)
 (require 'python)
+(require 'seq)
+
 
 (defgroup pytest nil
   "Easy Python test running in Emacs"
@@ -87,11 +89,21 @@
   "Regex for identifying test modules."
   :type 'string)
 
+(defcustom pytest-test-module-name-candidate-functions
+  '(pytest-candidate-current-module-if-test-module
+    pytest-candidate-src-test-subdir
+    pytest-candidate-pkg-test-subdir)
+  "List of functions returning candidates for the test module."
+  :type (repeat 'function))
+
 (defvar pytest-mode-map (make-sparse-keymap "pytest-mode") "pytest-mode keymap")
 
 (defvar pytest--last-command-args nil
   "Arguments passed to `pytest-run' the last time it was called,
 `nil' if never called.")
+
+(defvar pytest-debug nil
+  "If non nil enable logging in order to help debug pytest.")
 
 (defun pytest-mode-setup-keymap ()
   "Setup a default keymap."
@@ -256,6 +268,85 @@ Optional argument FLAGS py.test command line flags."
   (if (null pytest--last-command-args)
       (error "No previous test command run.")
     (pytest-run (car pytest--last-command-args) (cdr pytest--last-command-args))))
+
+;;;###autoload
+(defun pytest-run-tests-for-current-module ()
+  "Run the tests for the current module.
+
+The current module is, presumably, not a test module. Calls the
+functions from `pytest-test-module-name-candidate-functions', in
+turn, until one returns the path of an existing file and then
+runs the tests from that module. If all functions return nil no
+test is run and an user error is signaled.
+
+The functions proposing candidates receive a property list with
+the keys:
+
+- :module-name : filename, without the directory part, of the
+  current buffer.
+
+- :module-path : path of the current buffer.
+
+- :module-dir : path for the current buffer directory
+
+- :source-dir : path for the root of the source directory
+
+- :package-dir : path for the root of the package
+
+And must return either nil or an string containing a path, not
+necessarily an existing path.
+
+All directory paths already end with a directory delimiter, so
+it's safe to concat directly to them."
+  (interactive)
+  (when (stringp buffer-file-name)
+    (let* ((current-module (file-name-nondirectory buffer-file-name))
+           (current-path (file-name-directory buffer-file-name))
+           (source-root-path (expand-file-name
+                              (locate-dominating-file current-path
+                                                      (lambda (x) (file-exists-p (concat (file-name-directory (directory-file-name x))
+                                                                                    "setup.py"))))))
+           (package-root-path (expand-file-name (locate-dominating-file current-path "setup.py")))
+           (candidate (seq-some (lambda (f)
+                                  (let ((result (funcall f (list :module-name current-module
+                                                                 :module-path buffer-file-name
+                                                                 :module-dir current-path
+                                                                 :source-dir source-root-path
+                                                                 :package-dir package-root-path))))
+                                    (when pytest-debug
+                                      (message (format "candidate %s" f))
+                                      (message (format "          current-module = %s" current-module))
+                                      (message (format "          buffer-file-name = %s" buffer-file-name))
+                                      (message (format "          current-path = %s" current-path))
+                                      (message (format "          source-root-path = %s" source-root-path))
+                                      (message (format "          package-root-path = %s" package-root-path))
+                                      (message (format "  result = %s" result)))
+                                    (and (stringp result)
+                                         (file-exists-p result)
+                                         result)))
+                                pytest-test-module-name-candidate-functions)))
+      (if candidate
+          (pytest-run candidate)
+        (user-error "No test module found for the current module")))))
+
+(defun pytest-candidate-current-module-if-test-module (args)
+  "Propose the module itself if it's a test module."
+  (let ((module (plist-get args :module-name))
+        (path (plist-get args :module-path)))
+    (when (string-match-p "^test_" module)
+      path)))
+
+(defun pytest-candidate-src-test-subdir (args)
+  "Propose a candidate under src/tests directory."
+  (let ((src-root (plist-get args :source-dir))
+        (module (plist-get args :module-name)))
+    (concat src-root (file-name-as-directory "tests") "test_" module)))
+
+(defun pytest-candidate-pkg-test-subdir (args)
+  "Propose a candidate under package/tests directory."
+  (let ((pkg-root (plist-get args :package-dir))
+        (module (plist-get args :module-name)))
+    (concat pkg-root (file-name-as-directory "tests") "test_" module)))
 
 ;;; Utility functions
 (defun pytest-find-test-runner ()
