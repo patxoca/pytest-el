@@ -122,6 +122,7 @@
   "Minor mode for running pytest from emacs." nil " pytest" pytest-mode-map
   (pytest-mode-setup-keymap))
 
+;;;###autoload
 (defun pytest-mode-enable-if-test-module ()
   "Activate `pytest-mode' when visiting a python test file."
   ;; emacs lisp check if value is string
