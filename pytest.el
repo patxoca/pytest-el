@@ -94,7 +94,7 @@
     pytest-candidate-src-test-subdir
     pytest-candidate-pkg-test-subdir)
   "List of functions returning candidates for the test module."
-  :type (repeat 'function))
+  :type '(repeat function))
 
 (defvar pytest-mode-map (make-sparse-keymap "pytest-mode") "pytest-mode keymap")
 
