@@ -353,7 +353,7 @@ it's safe to concat directly to them."
 (defun pytest-find-test-runner ()
   (let ((result
          (cl-reduce '(lambda (x y) (or x y))
-                 (mapcar 'pytest-find-test-runner-names pytest-project-names))))
+                    (mapcar 'pytest-find-test-runner-names pytest-project-names))))
     (if result
         result
       pytest-global-name)))
@@ -417,8 +417,8 @@ case.  This requires pytest >= 1.2."
 
 (defun pytest-project-root (dirname)
   (cl-reduce '(lambda (x y) (or x y))
-          (mapcar (lambda (d) (member d (directory-files dirname)))
-                  pytest-project-root-files)))
+             (mapcar (lambda (d) (member d (directory-files dirname)))
+                     pytest-project-root-files)))
 
 (defun pytest-current-root ()
   (if (not (buffer-file-name))
