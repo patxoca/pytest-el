@@ -110,12 +110,14 @@
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "a")) 'pytest-all)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "m")) 'pytest-module)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "c")) 'pytest-class)
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "f")) 'pytest-last-failed)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix ".")) 'pytest-one)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "r")) 'pytest-rerun-last)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "d")) 'pytest-directory)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "pa")) 'pytest-pdb-all)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "pm")) 'pytest-pdb-module)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "pc")) 'pytest-pdb-class)
+  (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "pf")) 'pytest-pdb-last-failed)
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "p.")) 'pytest-pdb-one))
 
 (define-minor-mode pytest-mode
@@ -204,6 +206,20 @@ Optional argument FLAGS py.test command line flags."
   "Start pdb on error."
   (interactive)
   (pytest-all (concat "--pdb " pytest-cmd-flags)))
+
+;;; Run tests that failed last time
+;;;###autoload
+(defun pytest-last-failed (&optional flags)
+  "Run tests that failed last time.
+Optional argument FLAGS py.test command line flags."
+  (interactive)
+  (pytest-all (concat "--last-failed " flags)))
+
+;;;###autoload
+(defun pytest-pdb-last-failed ()
+  "Run tests that failed last time, enter debugger on error."
+  (interactive)
+  (pytest-last-failed (concat "--pdb " pytest-cmd-flags)))
 
 ;;; Run all the tests in a directory (and its child directories)
 ;;;###autoload
