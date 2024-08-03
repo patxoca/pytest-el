@@ -69,19 +69,18 @@ by default).
 The minor mode defines a keymap for running tests:
 
 #+BEGIN_SRC
-  C-c t a:   pytest-all
-  C-c t d:   pytest-directory
-  C-c t m:   pytest-module
-  C-c t c:   pytest-class
-  C-c t f:   pytest-last-failed
   C-c t .:   pytest-one
-  C-c t r:   pytest-rerun-last
+  C-c t a:   pytest-all
+  C-c t c:   pytest-class
   C-c t d:   pytest-directory
+  C-c t f:   pytest-last-failed
+  C-c t m:   pytest-module
+  C-c t r:   pytest-rerun-last
+  C-c t p .: pytest-pdb-one
   C-c t p a: pytest-pdb-all
-  C-c t p m: pytest-pdb-module
   C-c t p c: pytest-pdb-class
   C-c t p f: pytest-pdb-last-failed
-  C-c t p .: pytest-pdb-one
+  C-c t p m: pytest-pdb-module
 #+END_SRC
 
 The prefix ~C-c t~ can be changed setting a diferent value for the
