@@ -121,7 +121,10 @@
   (define-key pytest-mode-map (kbd (concat pytest-mode-keymap-prefix "pm")) 'pytest-pdb-module))
 
 (define-minor-mode pytest-mode
-  "Minor mode for running pytest from emacs." nil " pytest" pytest-mode-map
+  "Minor mode for running pytest from emacs."
+  :init-value nil
+  :lighter " pytest"
+  :keymap pytest-mode-map
   (pytest-mode-setup-keymap))
 
 ;;;###autoload
