@@ -185,7 +185,8 @@ Optional argument FLAGS py.test command line flags."
 Includes projectile support if installed.
 This allows one test buffer per project."
   (let ((postfix (if (and (fboundp 'projectile-project-p)
-                          (projectile-project-p))
+                          (projectile-project-p)
+                          (fboundp 'projectile-project-name))  ;; silencia warning
                      (concat "-" (projectile-project-name) "*")
                    "*")))
     (concat "*pytest" postfix)))
